@@ -49,6 +49,7 @@ elif is_macos
   libbacktrace_platform = files(
     libbacktrace_dir / 'macho.c',
     libbacktrace_dir / 'alloc.c',
+    libbacktrace_dir / 'read.c',  # Provides backtrace_get_view for non-mmap systems
   )
 endif
 
