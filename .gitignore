@@ -1,0 +1,27 @@
+# Build artifacts
+build/
+dist/
+wheelhouse/
+*.egg-info/
+.mesonpy-*/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS
+.DS_Store
+Thumbs.db
