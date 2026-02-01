@@ -13,6 +13,7 @@ from typing import List, Optional, Callable
 
 __all__ = [
     "supported",
+    "import_error",
     "get_backtrace",
     "print_backtrace",
     "create_state",
@@ -21,12 +22,14 @@ __all__ = [
 ]
 
 # Try to import the native extension
+_IMPORT_ERROR: Optional[str] = None
 try:
     from . import _libbacktrace
     _SUPPORTED = True
-except ImportError:
+except Exception as e:
     _libbacktrace = None  # type: ignore
     _SUPPORTED = False
+    _IMPORT_ERROR = f"{type(e).__name__}: {e}"
 
 
 @dataclass
@@ -101,6 +104,16 @@ def supported() -> bool:
         True if native backtraces are available
     """
     return _SUPPORTED
+
+
+def import_error() -> Optional[str]:
+    """
+    Get the error message if the native extension failed to import.
+    
+    Returns:
+        Error message string, or None if import succeeded
+    """
+    return _IMPORT_ERROR
 
 
 def create_state(filename: Optional[str] = None, threaded: bool = True) -> BacktraceState:

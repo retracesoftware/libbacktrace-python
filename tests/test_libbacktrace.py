@@ -20,7 +20,10 @@ def test_supported():
     
     # Should be True on Linux and macOS
     if sys.platform in ('linux', 'darwin'):
-        assert result is True
+        if not result:
+            # Print the import error for debugging
+            err = libbacktrace.import_error()
+            raise AssertionError(f"Expected supported() to be True on {sys.platform}, but got False. Import error: {err}")
 
 
 @pytest.mark.skipif(sys.platform not in ('linux', 'darwin'),
