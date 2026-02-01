@@ -19,6 +19,20 @@ __all__ = [
     "create_state",
     "BacktraceFrame",
     "BacktraceState",
+    # Fault handler (signal handler for crashes)
+    "enable_faulthandler",
+    "disable_faulthandler",
+    "faulthandler_enabled",
+    "get_signals",
+    "get_default_signals",
+    # Signal name constants
+    "SIGSEGV",
+    "SIGABRT",
+    "SIGFPE",
+    "SIGBUS",
+    "SIGILL",
+    "SIGTRAP",
+    "SIGSYS",
 ]
 
 # Try to import the native extension
@@ -166,3 +180,107 @@ def print_backtrace(skip: int = 0, file=None) -> None:
     
     for i, frame in enumerate(frames):
         print(f"  #{i} {frame}", file=file)
+
+
+# =============================================================================
+# Signal constants
+# =============================================================================
+
+SIGSEGV = "SIGSEGV"
+SIGABRT = "SIGABRT"
+SIGFPE = "SIGFPE"
+SIGBUS = "SIGBUS"
+SIGILL = "SIGILL"
+SIGTRAP = "SIGTRAP"
+SIGSYS = "SIGSYS"
+
+
+# =============================================================================
+# Fault handler - Signal handler for crashes (SIGSEGV, SIGABRT, etc.)
+# =============================================================================
+
+def get_signals() -> List[str]:
+    """
+    Get list of all available signal names that can be handled.
+    
+    Returns:
+        List of signal name strings (e.g., ["SIGSEGV", "SIGABRT", ...])
+    """
+    if not _SUPPORTED:
+        return []
+    return _libbacktrace.get_signals()
+
+
+def get_default_signals() -> List[str]:
+    """
+    Get list of default signals handled when none specified.
+    
+    Returns:
+        List of signal name strings
+    """
+    if not _SUPPORTED:
+        return []
+    return _libbacktrace.get_default_signals()
+
+
+def enable_faulthandler(
+    signals: Optional[List[str]] = None,
+    report_path: Optional[str] = None
+) -> bool:
+    """
+    Enable native crash handler for specified signals.
+    
+    When a crash occurs, prints a native stack trace with symbols to stderr.
+    Optionally saves the crash report to a file.
+    
+    This complements Python's built-in faulthandler module which only shows
+    Python stack traces. For complete crash reports, enable both:
+    
+        import faulthandler
+        faulthandler.enable()  # Python stack traces
+        
+        import libbacktrace
+        libbacktrace.enable_faulthandler()  # Native stack traces
+    
+    Example with custom signals:
+    
+        import libbacktrace
+        libbacktrace.enable_faulthandler(
+            signals=[libbacktrace.SIGSEGV, libbacktrace.SIGABRT]
+        )
+    
+    Args:
+        signals: List of signal names to handle. Use get_signals() to see
+                 available options. Default: SIGSEGV, SIGABRT, SIGFPE, SIGBUS
+        report_path: Optional file path to save crash reports
+        
+    Returns:
+        True if enabled successfully, False if not supported
+    """
+    if not _SUPPORTED:
+        return False
+    return _libbacktrace.enable_faulthandler(signals=signals, report_path=report_path)
+
+
+def disable_faulthandler() -> bool:
+    """
+    Disable native crash handler and restore default signal handlers.
+    
+    Returns:
+        True if disabled successfully, False if not supported
+    """
+    if not _SUPPORTED:
+        return False
+    return _libbacktrace.disable_faulthandler()
+
+
+def faulthandler_enabled() -> bool:
+    """
+    Check if the native crash handler is currently enabled.
+    
+    Returns:
+        True if crash handler is active
+    """
+    if not _SUPPORTED:
+        return False
+    return _libbacktrace.faulthandler_enabled()

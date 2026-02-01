@@ -44,13 +44,18 @@
 /* #undef HAVE_ZLIB */
 /* #undef HAVE_ZSTD */
 
+/* Common defines */
+#define HAVE_FCNTL_H 1
+#define HAVE_DLFCN_H 1
+
 /* Platform-specific configuration */
 #if defined(__APPLE__)
     /* macOS uses Mach-O format */
     #define BACKTRACE_SUPPORTS_DATA 1
     #define BACKTRACE_USES_MALLOC 1
     #define HAVE_MACH_O_DYLD_H 1
-    /* macOS doesn't have dl_iterate_phdr */
+    #define HAVE_DECL_STRNLEN 1
+    /* macOS doesn't have dl_iterate_phdr or link.h */
     
 #elif defined(__linux__)
     /* Linux uses ELF format */
