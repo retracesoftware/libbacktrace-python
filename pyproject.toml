@@ -1,0 +1,47 @@
+[project]
+name = "libbacktrace-python"
+dynamic = ["version"]
+description = "Python bindings for libbacktrace - native stack traces with DWARF symbols"
+readme = "README.md"
+license = {text = "Apache-2.0"}
+requires-python = ">=3.9"
+authors = [
+    {name = "Retrace Software"}
+]
+keywords = ["backtrace", "stacktrace", "debug", "crash", "dwarf", "symbols"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS :: MacOS X",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: C",
+    "Topic :: Software Development :: Debuggers",
+    "Topic :: System :: Logging",
+]
+
+[project.urls]
+Homepage = "https://github.com/retracesoftware/libbacktrace-python"
+Repository = "https://github.com/retracesoftware/libbacktrace-python"
+Issues = "https://github.com/retracesoftware/libbacktrace-python/issues"
+
+[build-system]
+requires = [
+    "meson>=1.2",
+    "meson-python>=0.16.0",
+    "setuptools_scm>=8.0.4",
+    "ninja"
+]
+build-backend = "mesonpy"
+
+[tool.setuptools_scm]
+version_scheme = "guess-next-dev"
+local_scheme = "no-local-version"
+
+[tool.meson-python.args]
+setup = ["-Dwarning_level=1"]
