@@ -233,6 +233,13 @@ def enable_faulthandler(
     When a crash occurs, prints a native stack trace with symbols to stderr.
     Optionally saves the crash report to a file.
     
+    IMPORTANT: The signal handler does NOT depend on Python being in an
+    operable state. After calling this function, crashes will generate
+    stack traces using only:
+      - Async-signal-safe syscalls (write, open, close)
+      - Pre-allocated libbacktrace state
+      - Stack-allocated buffers (no malloc in handler)
+    
     This complements Python's built-in faulthandler module which only shows
     Python stack traces. For complete crash reports, enable both:
     

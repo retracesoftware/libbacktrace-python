@@ -3,6 +3,22 @@
  * 
  * Provides Python bindings to libbacktrace for native stack traces
  * with DWARF symbol resolution.
+ * 
+ * SIGNAL HANDLER SAFETY:
+ * ----------------------
+ * The crash signal handler is designed to NOT depend on Python being
+ * in an operable state. After enable_faulthandler() is called, crashes
+ * will print stack traces using only:
+ * 
+ *   - Async-signal-safe syscalls: write(), open(), close(), getpid()
+ *   - Pre-allocated libbacktrace state (created during enable_faulthandler)
+ *   - Stack-allocated buffers (no malloc in signal handler)
+ * 
+ * Note: On macOS, libbacktrace itself uses malloc internally
+ * (BACKTRACE_USES_MALLOC=1), which is technically not async-signal-safe.
+ * However, since we pre-create the backtrace state before the crash,
+ * this usually works in practice. On Linux, libbacktrace uses mmap
+ * which is safer.
  */
 
 #define PY_SSIZE_T_CLEAN
@@ -204,6 +220,28 @@ static void signal_error_callback(void *data, const char *msg, int errnum) {
     }
 }
 
+/* Async-signal-safe signal name lookup (strsignal is NOT safe) */
+static const char *safe_signame(int sig) {
+    switch (sig) {
+        case SIGSEGV: return "SIGSEGV";
+        case SIGABRT: return "SIGABRT";
+        case SIGFPE:  return "SIGFPE";
+#ifdef SIGBUS
+        case SIGBUS:  return "SIGBUS";
+#endif
+#ifdef SIGILL
+        case SIGILL:  return "SIGILL";
+#endif
+#ifdef SIGTRAP
+        case SIGTRAP: return "SIGTRAP";
+#endif
+#ifdef SIGSYS
+        case SIGSYS:  return "SIGSYS";
+#endif
+        default:      return "UNKNOWN";
+    }
+}
+
 static void write_crash_header(int fd, int sig) {
     const char *header = 
         "\n================================================================\n"
@@ -212,8 +250,9 @@ static void write_crash_header(int fd, int sig) {
     (void)write(fd, header, strlen(header));
     
     char buf[128];
+    /* Use safe_signame instead of strsignal (which is NOT async-signal-safe) */
     int len = snprintf(buf, sizeof(buf), "Signal: %d (%s)\nPID: %d\n\n",
-                       sig, strsignal(sig), getpid());
+                       sig, safe_signame(sig), getpid());
     if (len > 0) {
         (void)write(fd, buf, (size_t)len);
     }
