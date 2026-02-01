@@ -34,13 +34,17 @@ libbacktrace_common = files(
   libbacktrace_dir / 'state.c',
 )
 
-# Platform-specific sources
+# Platform-specific sources and compiler args
+c_args = []
+
 if is_linux
   libbacktrace_platform = files(
     libbacktrace_dir / 'elf.c',
     libbacktrace_dir / 'mmap.c',
     libbacktrace_dir / 'mmapio.c',
   )
+  # GNU extensions needed for MAP_ANONYMOUS, dl_iterate_phdr, etc.
+  c_args += ['-D_GNU_SOURCE']
 elif is_macos
   libbacktrace_platform = files(
     libbacktrace_dir / 'macho.c',
@@ -64,6 +68,7 @@ py.extension_module(
   '_libbacktrace',
   sources: all_sources,
   include_directories: inc_dirs,
+  c_args: c_args,
   install: true,
   subdir: 'libbacktrace',
 )

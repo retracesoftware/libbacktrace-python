@@ -8,6 +8,11 @@
 #ifndef LIBBACKTRACE_CONFIG_H
 #define LIBBACKTRACE_CONFIG_H
 
+/* Enable GNU extensions for MAP_ANONYMOUS, dl_iterate_phdr, etc. */
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE 1
+#endif
+
 /* Package information */
 #define PACKAGE "libbacktrace"
 #define PACKAGE_NAME "libbacktrace"
@@ -28,6 +33,7 @@
 #define HAVE_UNISTD_H 1
 #define HAVE_SYS_STAT_H 1
 #define HAVE_SYS_TYPES_H 1
+#define HAVE_SYS_MMAN_H 1
 #define STDC_HEADERS 1
 
 /* DWARF support */
@@ -54,6 +60,14 @@
     #define HAVE_DL_ITERATE_PHDR 1
     #define HAVE_LINK_H 1
     #define HAVE_GETIPINFO 1
+    #define HAVE_DECL_STRNLEN 1
+    
+    /* ELF size based on architecture */
+    #if defined(__LP64__) || defined(_LP64) || defined(__x86_64__) || defined(__aarch64__)
+        #define BACKTRACE_ELF_SIZE 64
+    #else
+        #define BACKTRACE_ELF_SIZE 32
+    #endif
     
 #endif
 
