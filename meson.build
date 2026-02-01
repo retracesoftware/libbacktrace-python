@@ -55,7 +55,9 @@ extension_sources = files('src/libbacktrace/_libbacktrace.c')
 all_sources = libbacktrace_common + libbacktrace_platform + extension_sources
 
 # Include directories
-inc_dirs = include_directories(libbacktrace_dir, 'src/libbacktrace')
+# Note: src/libbacktrace contains our config.h and backtrace-supported.h
+# These must be searched BEFORE vendor/libbacktrace to override the .in templates
+inc_dirs = include_directories('src/libbacktrace', libbacktrace_dir)
 
 # Build the extension module
 py.extension_module(
