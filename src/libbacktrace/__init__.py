@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import sys
 from dataclasses import dataclass
-from typing import List, Optional, Callable
+from typing import List, Optional
 
 __all__ = [
     "supported",
