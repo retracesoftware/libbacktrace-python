@@ -93,8 +93,9 @@ def test_skip_frames():
     assert isinstance(frames_0, list)
     assert isinstance(frames_2, list)
     
-    # If we have frames, skipping should result in fewer
-    if len(frames_0) > 2:
+    # If we have frames but aren't hitting the max (128), skipping should result in fewer
+    # When at max frames, skipping just shifts the window
+    if len(frames_0) > 2 and len(frames_0) < 128:
         assert len(frames_2) < len(frames_0)
 
 
